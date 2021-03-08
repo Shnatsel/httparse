@@ -490,6 +490,7 @@ fn parse_reason<'a>(bytes: &mut Bytes<'a>) -> Result<&'a str> {
                 let bytes = bytes.slice_skip(2);
                 if !seen_obs_text {
                     // all bytes up till `i` must have been HTAB / SP / VCHAR
+                    debug_assert!(str::from_utf8(bytes).is_ok());
                     str::from_utf8_unchecked(bytes)
                 } else {
                     // obs-text characters were found, so return the fallback empty string
@@ -501,6 +502,7 @@ fn parse_reason<'a>(bytes: &mut Bytes<'a>) -> Result<&'a str> {
                 let bytes = bytes.slice_skip(1);
                 if !seen_obs_text {
                     // all bytes up till `i` must have been HTAB / SP / VCHAR
+                    debug_assert!(str::from_utf8(bytes).is_ok());
                     str::from_utf8_unchecked(bytes)
                 } else {
                     // obs-text characters were found, so return the fallback empty string
@@ -522,6 +524,7 @@ fn parse_token<'a>(bytes: &mut Bytes<'a>) -> Result<&'a str> {
         if b == b' ' {
             return Ok(Status::Complete(unsafe {
                 // all bytes up till `i` must have been `is_token`.
+                debug_assert!(str::from_utf8(bytes.slice_skip(1)).is_ok());
                 str::from_utf8_unchecked(bytes.slice_skip(1))
             }));
         } else if !is_token(b) {
@@ -539,6 +542,7 @@ fn parse_uri<'a>(bytes: &mut Bytes<'a>) -> Result<&'a str> {
         if b == b' ' {
             return Ok(Status::Complete(unsafe {
                 // all bytes up till `i` must have been `is_token`.
+                debug_assert!(str::from_utf8(bytes.slice_skip(1)).is_ok());
                 str::from_utf8_unchecked(bytes.slice_skip(1))
             }));
         } else if !is_uri_token(b) {
@@ -621,6 +625,7 @@ fn parse_headers_iter<'a, 'b>(headers: &mut &mut [Header<'a>], bytes: &'b mut By
                 if b == b':' {
                     count += bytes.pos();
                     header.name = unsafe {
+                        debug_assert!(str::from_utf8(bytes.slice_skip(1)).is_ok());
                         str::from_utf8_unchecked(bytes.slice_skip(1))
                     };
                     break 'name;
